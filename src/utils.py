@@ -2,7 +2,6 @@ import json
 from datetime import datetime
 
 
-filename = 'operations.json'
 def operations_file(filename):
     """
     Возвращает файл json с
@@ -74,19 +73,9 @@ def print_last_operations(file_last_operations):
 {masked_from} -> {masked_to}
 {amount} {currency}\n''')
 
-
-operations = operations_file(filename)
-last_five_operations = last_operations(operations)
-print_last_operations(last_five_operations)
-
 # Реализуйте функцию, которая выводит на экран список
 # из 5 последних выполненных клиентом операций в формате:
 #
 # <дата перевода> <описание перевода>
 # <откуда> -> <куда>
 # <сумма перевода> <валюта>
-
-# Пример вывода для одной операции:
-# 14.10.2018 Перевод организации
-# Visa Platinum 7000 79** **** 6361 -> Счет **9638
-# 82771.72 руб.
