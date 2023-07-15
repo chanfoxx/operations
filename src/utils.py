@@ -22,8 +22,8 @@ def last_operations(operations):
     Выбирает выполненные операции, сортирует
     их по дате и возвращает список 5-ти последних операций.
     """
-    executed_operations = [op for op in operations if op.get('state') == 'EXECUTED']
-    sorted_operations = sorted(executed_operations, key=get_date, reverse=True)
+    ex_operations = [op for op in operations if op.get('state') == 'EXECUTED']
+    sorted_operations = sorted(ex_operations, key=get_date, reverse=True)
     five_last_operations = sorted_operations[:5]
     return five_last_operations
 
@@ -50,12 +50,12 @@ def mask_account_number(account_number):
     return masked_number
 
 
-def print_last_operations(file_last_operations):
+def print_last_operations(five_last_operations):
     """
     Выводит пользователю 5 последних
     операций в определенном формате.
     """
-    for operation in file_last_operations:
+    for operation in five_last_operations:
         # Вытягиваем строку с датой, переводим ее в объект
         # даты и затем форматируем в нужный вид ДД.ММ.ГГГГ.
         date_str = operation['date'][:10]
