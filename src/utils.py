@@ -29,10 +29,12 @@ def last_operations(operations):
 
 
 def mask_card_number(card_number):
-    """Возвращает замаскированные номера счетов и карт отправителя."""
+    """
+    Возвращает замаскированные номера счетов
+    и карт отправителя если они есть.
+    """
     if 'Счет' in card_number:
-        card_number = card_number.replace(' ', '')
-        masked_number = card_number[:4] + ' ' + '**' + card_number[-4:]
+        masked_number = card_number[:5] + '**' + card_number[-4:]
         return masked_number
     elif 'Unknown' in card_number:
         return 'Unknown'
@@ -54,28 +56,29 @@ def print_last_operations(file_last_operations):
     операций в определенном формате.
     """
     for operation in file_last_operations:
+        # Вытягиваем строку с датой, переводим ее в объект
+        # даты и затем форматируем в нужный вид ДД.ММ.ГГГГ.
         date_str = operation['date'][:10]
         date_obj = datetime.strptime(date_str, "%Y-%m-%d")
         date = date_obj.strftime("%d.%m.%Y")
 
+        # Описание банковской операции.
         description = operation['description']
 
+        # Номер "от" кого перевод (если он виден) и
+        # номер "кому" перевод
         from_card = operation.get('from', 'Unknown')
         to_card = operation['to']
 
+        # Сумма и валюта перевода.
         amount = operation['operationAmount']['amount']
         currency = operation['operationAmount']['currency']['name']
 
+        # Вызов функций маскирующих номера счетов/карт.
         masked_from = mask_card_number(from_card)
         masked_to = mask_account_number(to_card)
 
+        # Вывод информации в нужном формате.
         print(f'''{date} {description}
 {masked_from} -> {masked_to}
 {amount} {currency}\n''')
-
-# Реализуйте функцию, которая выводит на экран список
-# из 5 последних выполненных клиентом операций в формате:
-#
-# <дата перевода> <описание перевода>
-# <откуда> -> <куда>
-# <сумма перевода> <валюта>
