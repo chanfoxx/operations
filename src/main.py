@@ -10,4 +10,6 @@ operations = utils.operations_file(filename)
 last_five_operations = utils.last_operations(operations)
 
 # выводим пользователю 5 выполненных последних операций.
-utils.print_last_operations(last_five_operations)
+formatted_operation = utils.print_last_operations(last_five_operations)
+for operation in formatted_operation:
+    print(operation)
