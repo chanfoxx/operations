@@ -4,6 +4,7 @@ from src import utils
 
 def test_operations_file():
     assert isinstance(utils.operations_file(PATH_WITH_FIXTURE), list)
+    assert utils.operations_file('file') is None
 
 
 def test_last_operations(bank_fixture):
