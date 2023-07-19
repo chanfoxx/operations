@@ -7,9 +7,16 @@ def operations_file(filename):
     Возвращает файл json с
     данными по банковским операциям.
     """
-    with open(filename, encoding='utf-8') as file:
-        operations = json.load(file)
-        return operations
+    try:
+        with open(filename, encoding='utf-8') as file:
+            operations = json.load(file)
+            return operations
+    except FileNotFoundError:
+        print(f"File {filename} not found.")
+        return None
+    except json.JSONDecodeError:
+        print(f"Error decode JSON file {filename}.")
+        return None
 
 
 def last_operations(operations):
