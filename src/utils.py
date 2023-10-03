@@ -54,7 +54,7 @@ def mask_account_number(account_number):
 
 def format_date(date_str):
     """
-    Возврашает отформатированную дату вида ДД.ММ.ГГГГ.
+    Возвращает отформатированную дату вида ДД.ММ.ГГГГ.
     """
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     return date_obj.strftime("%d.%m.%Y")
