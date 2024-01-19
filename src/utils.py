@@ -2,95 +2,75 @@ import json
 from datetime import datetime
 
 
-def operations_file(filename):
-    """
-    Возвращает файл json с
-    данными по банковским операциям.
-    """
-    try:
-        with open(filename, encoding='utf-8') as file:
-            operations = json.load(file)
+class JsonFileMixin:
+    """ Класс-миксин работы с json-файлами. """
+    def __init__(self, filename) -> None:
+        """
+        Создание экземпляра класса JsonFileMixin.
+
+        :param filename: json-файл.
+        """
+        self.filename = filename
+
+    def operations_file(self):
+        """ Возвращает файл json с данными по банковским операциям. """
+        try:
+            with open(self.filename, encoding='utf-8') as file:
+                operations = json.load(file)
+        except FileNotFoundError:
+            return f"File {self.filename} not found."
+        except json.JSONDecodeError:
+            return f"Error decode JSON file {self.filename}."
+        else:
             return operations
-    except FileNotFoundError:
-        print(f"File {filename} not found.")
-        return None
-    except json.JSONDecodeError:
-        print(f"Error decode JSON file {filename}.")
-        return None
 
 
-def last_operations(operations):
-    """
-    Выбирает выполненные операции, сортирует
-    их по дате и возвращает список 5-ти последних операций.
-    """
-    ex_operations = [op for op in operations if op.get('state') == 'EXECUTED']
-    sorted_operations = sorted(ex_operations, key=lambda operation: operation['date'], reverse=True)
-    five_last_operations = sorted_operations[:5]
-    return five_last_operations
+class Operation(JsonFileMixin):
+    """ Класс для банковских операций. """
+    def __init__(self, filename):
+        """ Создание экземпляра класса Operation. """
+        super().__init__(filename)
 
+    def get_executed_operations(self):
+        """ Выбирает и возвращает выполненные операции. """
+        operations = self.operations_file()
+        executed_operations = [operation for operation in operations
+                               if operation.get('state') == 'EXECUTED']
 
-def mask_card_number(card_number):
-    """
-    Возвращает замаскированные номера счетов
-    и карт отправителя если они есть.
-    """
-    if 'Счет' in card_number:
-        masked_number = card_number[:5] + '**' + card_number[-4:]
-        return masked_number
-    elif 'Unknown' in card_number:
-        return 'Unknown'
-    else:
-        masked_number = card_number[:-16] + card_number[-16:-12] + ' ' + \
-                        card_number[-12:-10] + '** **** ' + card_number[-4:]
-        return masked_number
+        return executed_operations
 
+    @staticmethod
+    def get_sorted_operations(operations):
+        """
+        Сортирует операции по дате и
+        возвращает список пяти последних операций.
+        """
+        sorted_operations = sorted(
+            operations, key=lambda operation: operation['date'],
+            reverse=True
+        )[:5]
 
-def mask_account_number(account_number):
-    """Возвращает замаскированные номера счетов получателя."""
-    masked_number = account_number[:5] + '**' + account_number[-4:]
-    return masked_number
+        return sorted_operations
 
+    @staticmethod
+    def get_format_date(date_str):
+        """ Возвращает отформатированную дату вида ДД.ММ.ГГГГ. """
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
 
-def format_date(date_str):
-    """
-    Возвращает отформатированную дату вида ДД.ММ.ГГГГ.
-    """
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    return date_obj.strftime("%d.%m.%Y")
+        return date_obj.strftime("%d.%m.%Y")
 
-
-def format_operation(operation):
-    """
-    Отформатированные данные для
-    вывода информации пользователю.
-    """
-    # Дата банковской операции.
-    date = format_date(operation['date'][:10])
-
-    # Описание банковской операции.
-    description = operation['description']
-
-    # Номер "от" кого перевод (если он виден) и
-    # номер "кому" перевод
-    from_card = operation.get('from', 'Unknown')
-    to_card = operation['to']
-
-    # Сумма и валюта перевода.
-    amount = operation['operationAmount']['amount']
-    currency = operation['operationAmount']['currency']['name']
-
-    # Вызов функций маскирующих номера счетов/карт.
-    masked_from = mask_card_number(from_card)
-    masked_to = mask_account_number(to_card)
-
-    return f'{date} {description}\n{masked_from} -> {masked_to}\n{amount} {currency}\n'
-
-
-def print_last_operations(five_last_operations):
-    """
-    Выводит пользователю 5 последних
-    операций в определенном формате.
-    """
-    form_operation = [format_operation(operation) for operation in five_last_operations]
-    return form_operation
+    @staticmethod
+    def mask_card_number(card_number):
+        """
+        Возвращает замаскированные номера счетов
+        и карт отправителя/получателя (если они существуют).
+        """
+        if 'Счет' in card_number:
+            masked_number = card_number[:5] + '**' + card_number[-4:]
+            return masked_number
+        elif 'Unknown' in card_number:
+            return 'Unknown'
+        else:
+            masked_number = card_number[:-16] + card_number[-16:-12] + ' ' + \
+                            card_number[-12:-10] + '** **** ' + card_number[-4:]
+            return masked_number
